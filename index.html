@@ -78,10 +78,12 @@ header{position:sticky;top:0;z-index:100;height:56px;padding:0 2rem;display:flex
 .sv{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;color:var(--accent);line-height:1;}
 .sl{font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;}
 .slogans{display:flex;flex-direction:column;align-self:center;}
-.sli{display:flex;align-items:center;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.8rem;color:var(--muted);transition:color .22s;}
+.sli{display:flex;align-items:center;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.8rem;color:var(--dim);transition:color .5s,text-shadow .5s;}
 .sli:last-child{border-bottom:none;}
 .sli:hover{color:var(--text);}
-.sld{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.sli.lit{color:var(--accent);text-shadow:0 0 18px rgba(205,255,0,.45);}
+.sld{width:5px;height:5px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .5s,box-shadow .5s;}
+.sli.lit .sld{background:var(--accent);box-shadow:0 0 8px rgba(205,255,0,.7);}
 
 .cat-nav{display:flex;border-bottom:1px solid var(--border);padding:0 2rem;overflow-x:auto;}
 .cat-btn{padding:.85rem 1.2rem;font-size:.7rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;white-space:nowrap;transition:all .18s;}
@@ -612,6 +614,17 @@ const SLOGANS=["Yankı odalarınızdan çıkın","Fikirlerinizi algoritmalar yö
 let si=0;
 const hSl=document.getElementById('hSlogan');
 setInterval(()=>{hSl.style.opacity='0';setTimeout(()=>{si=(si+1)%SLOGANS.length;hSl.textContent=SLOGANS[si];hSl.style.opacity='1';},280);},4500);
+
+/* ── Sloganları sırayla parlat ── */
+const sliEls=document.querySelectorAll('.sli');
+let sliIdx=0;
+function litNext(){
+  sliEls.forEach(el=>el.classList.remove('lit'));
+  sliEls[sliIdx].classList.add('lit');
+  sliIdx=(sliIdx+1)%sliEls.length;
+}
+litNext();
+setInterval(litNext,1800);
 
 /* ── Per-button hover mesajları ── */
 const NUDGE_PER_P = {
