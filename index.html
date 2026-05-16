@@ -50,6 +50,27 @@ header{position:sticky;top:0;z-index:100;height:56px;padding:0 2rem;display:flex
 .pfil[data-p="uluslararasi"].act{background:var(--p-ulusal);border-color:var(--p-ulusal);}
 .pfil[data-p="merkez"].act{background:var(--p-merkez);border-color:var(--p-merkez);}
 
+/* ── Yankı odası uyarı tooltip (body-level, overflow-safe) ── */
+.pfil-wrap{flex-shrink:0;}
+#echoFloat{
+  display:none;position:fixed;
+  width:290px;padding:.9rem 1.1rem;
+  background:#1a1600;border:2px solid var(--accent);
+  font-family:'IBM Plex Sans',sans-serif;font-size:.78rem;
+  line-height:1.65;color:#F5E642;
+  pointer-events:none;z-index:9999;
+}
+#echoFloat.vis{display:block;animation:tipfade .18s ease;}
+#echoFloat::before{
+  content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-bottom-color:var(--accent);
+}
+#echoFloat::after{
+  content:'';position:absolute;bottom:calc(100% - 2px);left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-bottom-color:#1a1600;
+}
+@keyframes tipfade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:3rem;padding:3rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
 .hero-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,5.5vw,4.8rem);line-height:.92;letter-spacing:.03em;}
 .hero-h1 em{color:var(--accent);font-style:normal;}
@@ -74,6 +95,27 @@ header{position:sticky;top:0;z-index:100;height:56px;padding:0 2rem;display:flex
 .div-score{font-weight:500;flex-shrink:0;}
 .div-pills{display:flex;gap:.4rem;flex-wrap:wrap;}
 .dpill{padding:2px 7px;font-size:.54rem;}
+
+/* Yankı odası uyarı bandı */
+.echo-warning{
+  display:none;padding:.75rem 2rem;
+  background:#1a1200;border-bottom:2px solid var(--accent);
+  align-items:center;gap:1.2rem;flex-wrap:wrap;
+}
+.echo-warning.show{display:flex;}
+.ew-text{
+  flex:1;font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;
+  color:#F5E642;line-height:1.5;
+}
+.ew-back{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--accent);color:#000;border:none;
+  padding:5px 12px;cursor:pointer;
+  font-family:'IBM Plex Sans',sans-serif;font-size:.67rem;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;
+  transition:background .15s;flex-shrink:0;
+}
+.ew-back:hover{background:#deff1a;}
 
 .dash{padding:1.5rem 2rem;}
 .col-heads{display:grid;grid-template-columns:188px repeat(4,1fr);gap:1px;background:var(--border);margin-bottom:1px;}
@@ -161,11 +203,26 @@ footer{padding:2rem;display:flex;justify-content:space-between;align-items:cente
 <div class="pfilter">
   <span class="pf-label">Perspektif:</span>
   <button class="pfil act" data-p="tumu" onclick="doFilter('tumu',this)">Tümü</button>
-  <button class="pfil" data-p="muhalif" onclick="doFilter('muhalif',this)"><div class="pfd" style="background:var(--p-muhalif)"></div>Muhalif</button>
-  <button class="pfil" data-p="bagimsiz" onclick="doFilter('bagimsiz',this)"><div class="pfd" style="background:var(--p-bagimsiz)"></div>Bağımsız</button>
-  <button class="pfil" data-p="iktidar" onclick="doFilter('iktidar',this)"><div class="pfd" style="background:var(--p-iktidar)"></div>İktidar Yanlısı</button>
-  <button class="pfil" data-p="uluslararasi" onclick="doFilter('uluslararasi',this)"><div class="pfd" style="background:var(--p-ulusal)"></div>Uluslararası</button>
-  <button class="pfil" data-p="merkez" onclick="doFilter('merkez',this)"><div class="pfd" style="background:var(--p-merkez)"></div>Merkez</button>
+  <div class="pfil-wrap">
+    <button class="pfil" data-p="muhalif" onclick="doFilter('muhalif',this)"><div class="pfd" style="background:var(--p-muhalif)"></div>Muhalif</button>
+  </div>
+  <div class="pfil-wrap">
+    <button class="pfil" data-p="bagimsiz" onclick="doFilter('bagimsiz',this)"><div class="pfd" style="background:var(--p-bagimsiz)"></div>Bağımsız</button>
+  </div>
+  <div class="pfil-wrap">
+    <button class="pfil" data-p="iktidar" onclick="doFilter('iktidar',this)"><div class="pfd" style="background:var(--p-iktidar)"></div>İktidar Yanlısı</button>
+  </div>
+  <div class="pfil-wrap">
+    <button class="pfil" data-p="uluslararasi" onclick="doFilter('uluslararasi',this)"><div class="pfd" style="background:var(--p-ulusal)"></div>Uluslararası</button>
+  </div>
+  <div class="pfil-wrap">
+    <button class="pfil" data-p="merkez" onclick="doFilter('merkez',this)"><div class="pfd" style="background:var(--p-merkez)"></div>Merkez</button>
+  </div>
+</div>
+
+<div class="echo-warning" id="echoWarning">
+  <div class="ew-text" id="echoWarningText"></div>
+  <button class="ew-back" onclick="doFilter('tumu', document.querySelector('.pfil[data-p=tumu]'))">← Tümü'ne dön</button>
 </div>
 
 <section class="hero">
@@ -249,6 +306,8 @@ footer{padding:2rem;display:flex;justify-content:space-between;align-items:cente
   <div class="f-logo">ALGORITHMLESS</div>
   <div class="f-text">Algoritmaların dışında, özgür düşünce için — 2025</div>
 </footer>
+
+<div id="echoFloat"></div>
 
 <script>
 const P={
@@ -499,6 +558,23 @@ function doFilter(p,btn){
   document.querySelectorAll('.pfil').forEach(b=>b.classList.remove('act'));
   btn.classList.add('act');
   render();
+  // Yankı odası uyarı bandı
+  const ew=document.getElementById('echoWarning');
+  const ewt=document.getElementById('echoWarningText');
+  if(ew&&ewt){
+    if(p==='tumu'){ew.classList.remove('show');}
+    else{
+      const msgs={
+        muhalif:'⚠ Şu an yalnızca muhalif içerikler görünüyor. Bu sizi yeni bir yankı odası riskiyle karşı karşıya bırakır. Farklı sesler için Tümü\'ne dönün.',
+        bagimsiz:'⚠ Yalnızca bağımsız medyayı görmek eksik bir resim sunar. Diğer perspektifleri de dahil etmek için Tümü\'ne dönün.',
+        iktidar:'⚠ Şu an yalnızca iktidar yanlısı içerikler görünüyor. Gerçek bilgi için tüm sesleri bir arada duymak gerekir.',
+        uluslararasi:'⚠ Yalnızca uluslararası perspektif seçildi. Yerel sesleri dışarıda bırakmak tam resmi görmenizi engelleyebilir.',
+        merkez:'⚠ Merkez perspektifi de bir seçimdir. Uç noktaları görmek düşüncenizi zenginleştirebilir.'
+      };
+      ewt.textContent=msgs[p]||'';
+      ew.classList.add('show');
+    }
+  }
 }
 
 function doUpvote(ri,pl,e){
@@ -536,6 +612,61 @@ const SLOGANS=["Yankı odalarınızdan çıkın","Fikirlerinizi algoritmalar yö
 let si=0;
 const hSl=document.getElementById('hSlogan');
 setInterval(()=>{hSl.style.opacity='0';setTimeout(()=>{si=(si+1)%SLOGANS.length;hSl.textContent=SLOGANS[si];hSl.style.opacity='1';},280);},4500);
+
+/* ── Per-button hover mesajları ── */
+const NUDGE_PER_P = {
+  muhalif:
+    "Yalnızca muhalif sesleri dinlemek, iktidar yanlısı yankı odasının aynası — ama yine de bir yankı odası. Algorithmless sizi her ikisinden de çıkarmak için var.",
+  bagimsiz:
+    "İyi bir başlangıç — ama bağımsız medya da kendi içinde homojen olabilir. Gerçek çeşitlilik için iktidar ve muhalif sesleri de duymak gerekir.",
+  iktidar:
+    "Tek bir perspektife odaklanmak, gerçekliğin yalnızca bir köşesini görmek demektir. Algorithmless'te tüm sesler eşit ağırlıkta.",
+  uluslararasi:
+    "Küresel perspektif değerli, ama yerel sesleri dışarıda bırakmak resmin yarısını kaçırmak demektir.",
+  merkez:
+    "Merkez de bir tercihtir — ve her tercih bir yankı odasının tohumudur. Uçları da dinlemeye ne dersiniz?"
+};
+
+/* Tıklandıktan sonra gösterilecek uyarı metinleri */
+const WARN_PER_P = {
+  muhalif:
+    "⚠ Şu an yalnızca muhalif içerikler görünüyor. Bu sizi yeni bir yankı odasına sokabilir. Farklı sesler için Tümü'ne dönün.",
+  bagimsiz:
+    "⚠ Yalnızca bağımsız medyayı görmek eksik bir resim sunar. Diğer perspektifleri de dahil etmek için Tümü'ne dönün.",
+  iktidar:
+    "⚠ Şu an yalnızca iktidar yanlısı içerikler görünüyor. Gerçek bilgi için tüm sesleri bir arada duymak gerekir.",
+  uluslararasi:
+    "⚠ Yalnızca uluslararası perspektif seçildi. Yerel sesleri dışarıda bırakmak tam resmi görmenizi engelleyebilir.",
+  merkez:
+    "⚠ Merkez perspektifi de bir seçimdir. Uç noktaları görmek düşüncenizi zenginleştirebilir."
+};
+
+const echoFloat = document.getElementById('echoFloat');
+const echoWarning = document.getElementById('echoWarning');
+const echoWarningText = document.getElementById('echoWarningText');
+
+document.querySelectorAll('.pfil-wrap').forEach(wrap => {
+  const btn = wrap.querySelector('.pfil');
+  const p = btn.dataset.p;
+
+  wrap.addEventListener('mouseenter', () => {
+    const r = btn.getBoundingClientRect();
+    echoFloat.textContent = NUDGE_PER_P[p] || '';
+    const tipW = 290;
+    let left = r.left + r.width/2 - tipW/2;
+    if (left < 8) left = 8;
+    if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+    echoFloat.style.left = left + 'px';
+    echoFloat.style.top  = (r.bottom + 9) + 'px';
+    echoFloat.classList.remove('vis');
+    void echoFloat.offsetWidth;
+    echoFloat.classList.add('vis');
+  });
+
+  wrap.addEventListener('mouseleave', () => {
+    echoFloat.classList.remove('vis');
+  });
+});
 
 ST.rows=defaultPick();render();
 </script>
