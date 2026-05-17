@@ -1,2 +1,2 @@
 # algorithmless
-İnsanların haber okurken algoritmaların yarattığı yankı odasından çıkmasını sağlamayı hedefleyen bir internet haber sitesi.
+Algoritmaların yarattığı yankı odalarını kırmak için farklı perspektifleri yan yana sunan bağımsız haber platformu...
