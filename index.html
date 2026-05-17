@@ -138,10 +138,22 @@ header{position:sticky;top:0;z-index:100;height:56px;padding:0 2rem;display:flex
 
 .p-cell{background:var(--card);padding:.78rem .9rem;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:background .13s;position:relative;}
 .p-cell:hover{background:#1e1e1e;}
+.p-cell.has-url:hover .p-title{color:var(--accent);}
+.p-cell.has-url .p-go{display:inline-flex;align-items:center;gap:3px;font-size:.52rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);}
+.p-cell.has-url:hover .p-go{color:var(--accent);}
+.p-go{display:none;}
 .p-cell.empty{background:var(--bg);cursor:default;}
 .p-cell.dimmed{opacity:.13;pointer-events:none;}
 .p-cell.featured{border-top:2px solid var(--accent);}
-.p-badge{display:inline-flex;align-items:center;font-size:.52rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding:2px 5px;width:fit-content;margin-bottom:2px;}
+/* Kart hover nudge */
+.p-nudge{
+  display:none;position:absolute;top:6px;right:6px;
+  font-size:.58rem;font-family:'IBM Plex Sans',sans-serif;
+  color:var(--accent);background:var(--accent-bg);
+  border:1px solid rgba(205,255,0,.25);
+  padding:2px 7px;line-height:1.4;pointer-events:none;
+}
+.p-cell:hover .p-nudge{display:block;}
 .p-source{font-size:.57rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.07em;}
 .p-title{font-size:.75rem;line-height:1.36;flex:1;color:var(--text);}
 .p-bottom{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:2px;}
@@ -326,10 +338,10 @@ const PLATS=["yt","tw","ind","pod"];
 const POOL=[
   {cat:"EKONOMİ",label:"Enflasyon & Fiyatlar",items:{
     yt:[
-      {ch:"Ekonomist TV",t:"2 sa",p:"merkez",   title:"Eylül enflasyonu: Rakamlara göre hayat pahalılığı ne durumda?"},
-      {ch:"Sözcü TV",    t:"3 sa",p:"muhalif",  title:"Vatandaş isyan ediyor: Zam üstüne zam bitmiyor"},
-      {ch:"TRT Haber",   t:"1 sa",p:"iktidar",  title:"Enflasyonla mücadelede alınan önlemler ve beklenen sonuçlar"},
-      {ch:"DW Türkçe",   t:"5 sa",p:"uluslararasi",title:"Türkiye enflasyonu Avrupa'nın neresinde?"},
+      {ch:"Ekonomist TV",t:"2 sa",p:"merkez",   title:"Eylül enflasyonu: Rakamlara göre hayat pahalılığı ne durumda?",url:"https://www.youtube.com/@EkonomistTV"},
+      {ch:"Sözcü TV",    t:"3 sa",p:"muhalif",  title:"Vatandaş isyan ediyor: Zam üstüne zam bitmiyor",url:"https://www.youtube.com/@sozcutv"},
+      {ch:"TRT Haber",   t:"1 sa",p:"iktidar",  title:"Enflasyonla mücadelede alınan önlemler ve beklenen sonuçlar",url:"https://www.youtube.com/@trthaber"},
+      {ch:"DW Türkçe",   t:"5 sa",p:"uluslararasi",title:"Türkiye enflasyonu Avrupa'nın neresinde?",url:"https://www.youtube.com/@DWTurkce"},
     ],
     tw:[
       {ch:"@BorsaGundem",   t:"45 dk",p:"merkez",      title:"TÜFE açıklandı: Yıllık %65.4 — analistler ve piyasa tepkisi"},
@@ -492,6 +504,21 @@ function defaultPick(){
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+function openUrl(e,url){
+  // upvote butonuna tıklamayı engelleme
+  if(e.target.closest('.upvote'))return;
+  if(url)window.open(url,'_blank','noopener,noreferrer');
+}
+
+const CARD_NUDGES = [
+  "Belki de bu haberi görmen gerek! 😉",
+  "Farklı bir ses, farklı bir bakış açısı! 😉",
+  "Bu perspektifi keşfetmeye ne dersin? 😉",
+  "Konfor alanının dışına bir adım! 😉",
+  "Algorithmless bunu önerir 😉",
+];
+let nudgeCardIdx = 0;
+
 function cellHtml(item,ri,pl){
   if(!item)return`<div class="p-cell empty"></div>`;
   const key=`${ri}-${pl}`;
@@ -499,14 +526,18 @@ function cellHtml(item,ri,pl){
   const voted=ST.voted.has(key);
   const featured=votes>=3;
   const dimmed=ST.filter!=='tumu'&&item.p!==ST.filter;
-  const persp=P[item.p];
-  return`<div class="p-cell${dimmed?' dimmed':''}${featured?' featured':''}">
+  const hasUrl=!!(item.url);
+  const nudge=CARD_NUDGES[nudgeCardIdx%CARD_NUDGES.length];
+  nudgeCardIdx++;
+  const clickAttr=hasUrl?`onclick="openUrl(event,'${esc(item.url)}')"`:``;
+  return`<div class="p-cell${dimmed?' dimmed':''}${featured?' featured':''}${hasUrl?' has-url':''}" ${clickAttr}>
     ${featured?`<div class="feat-badge">★ Öne Çıkan</div>`:''}
-    ${persp?`<div class="p-badge" style="background:${persp.bg};color:${persp.c}">${persp.label}</div>`:''}
+    <div class="p-nudge">${nudge}</div>
     <div class="p-source" style="color:${PC[pl]}">${esc(item.ch)}</div>
     <div class="p-title">${esc(item.title)}</div>
     <div class="p-bottom">
       <span class="p-time">${esc(item.t)} önce</span>
+      <span class="p-go">${hasUrl?`Git ↗`:''}</span>
       <button class="upvote${voted?' voted':''}" onclick="doUpvote(${ri},'${pl}',event)">
         <svg viewBox="0 0 10 10" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5"><path d="M5 2L8.5 7H1.5Z"/></svg>
         ${votes}
