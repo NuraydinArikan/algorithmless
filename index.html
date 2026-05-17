@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Algorithmless — v2</title>
+<title>Algorithmless — Algoritmaların Dışında</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -632,13 +632,49 @@ function toggleSuggest(){
   if(open)setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
 
-function submitSuggest(){
-  const vals=['si-konu','si-kanal','si-baslik'].map(id=>document.getElementById(id).value.trim());
-  if(vals.some(v=>!v))return;
+async function submitSuggest(){
+  const konu   = document.getElementById('si-konu').value.trim();
+  const kanal  = document.getElementById('si-kanal').value.trim();
+  const baslik = document.getElementById('si-baslik').value.trim();
+  if(!konu||!kanal||!baslik){
+    document.getElementById('si-konu').style.borderColor='var(--p-muhalif)';
+    return;
+  }
   const btn=document.getElementById('spBtn');
-  btn.textContent='✓ Öneri alındı — incelemeye alındı';
-  btn.disabled=true;btn.style.background='var(--p-bagimsiz)';
-  ['si-konu','si-kanal','si-baslik','si-url'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.disabled=true;}});
+  btn.disabled=true;btn.textContent='Gönderiliyor...';
+
+  try{
+    const res=await fetch('https://api.web3forms.com/submit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        access_key:'60a89967-2802-4c68-8a48-c27c8338b48c',
+        subject:'Algorithmless — Yeni İçerik Önerisi',
+        from_name:'Algorithmless Okuyucusu',
+        'Gündem Konusu': konu,
+        'Platform':      document.getElementById('si-plat').value,
+        'Kanal':         kanal,
+        'Başlık':        baslik,
+        'Perspektif':    document.getElementById('si-persp').value,
+        'URL':           document.getElementById('si-url').value.trim()||'—',
+      })
+    });
+    const data=await res.json();
+    if(data.success){
+      btn.textContent='✓ Öneri alındı — incelemeye alındı';
+      btn.style.background='var(--p-bagimsiz)';
+      ['si-konu','si-kanal','si-baslik','si-url'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){el.value='';el.disabled=true;}
+      });
+    } else {
+      btn.textContent='⚠ Bir hata oluştu — tekrar deneyin';
+      btn.disabled=false;
+    }
+  }catch(err){
+    btn.textContent='⚠ Bağlantı hatası — tekrar deneyin';
+    btn.disabled=false;
+  }
 }
 
 const SLOGANS=["Yankı odalarınızdan çıkın","Fikirlerinizi algoritmalar yönetmesin","Sosyal medyanın sizi yönetmesine izin vermeyin","Düşünce çeşitliliği için buradayız"];
